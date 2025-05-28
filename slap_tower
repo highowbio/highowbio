@@ -1,0 +1,66 @@
+-- Загружаем Redz Hub UI
+local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/tbao143/Library-ui/refs/heads/main/Redzhubui"))()
+
+-- Создаем окно
+local Window = redzlib:MakeWindow({
+    Title = "Slap Tower Hub",
+    SubTitle = "by highowbio",
+    SaveFolder = "SlapTowerUI"
+})
+
+-- Создаем вкладку
+local Tab = Window:MakeTab({"Главное", "Slap Tower"})
+
+-- Добавляем секцию
+local Section = Tab:AddSection({"Функции"})
+
+-- Автоудар (пример)
+Tab:AddButton({"Автоудар", function()
+    local player = game.Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+
+    -- Пример: ищем и вызываем Remote (если у игры есть Remote на удар)
+    local remote = game.ReplicatedStorage:FindFirstChild("SlapEvent") or char:FindFirstChild("Remote")
+    if remote and remote:IsA("RemoteEvent") then
+        while task.wait(0.5) do
+            remote:FireServer()
+        end
+    else
+        warn("Remote не найден")
+    end
+end})
+
+-- Слайдер скорости
+Tab:AddSlider({
+    Name = "Скорость",
+    Min = 16,
+    Max = 100,
+    Default = 16,
+    Increase = 1,
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local char = player.Character or player.CharacterAdded:Wait()
+        local humanoid = char:FindFirstChildWhichIsA("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = Value
+        end
+    end
+})
+
+-- Переключатель (например, включение/выключение анти-АФК)
+Tab:AddToggle({
+    Name = "Анти-АФК",
+    Description = "Не даст игре вас кикнуть",
+    Default = false,
+    Callback = function(state)
+        if state then
+            getgenv().AntiAFK = true
+            while getgenv().AntiAFK do
+                game.VirtualInputManager:SendKeyEvent(true, "W", false, game)
+                task.wait(10)
+            end
+        else
+            getgenv().AntiAFK = false
+        end
+    end
+})
